@@ -37,13 +37,42 @@ export const generateNewSong = async (req: Request, res: Response) => {
 
     // Generate song recommendations using Gemini AI
     const aiResponse = await generateSong(mood, customization);
-    console.log(aiResponse);
+
+    if (
+      !aiResponse ||
+      !aiResponse.candidates ||
+      !aiResponse.candidates[0]?.content?.parts?.[0]?.text
+    ) {
+      return res.status(500).json({
+        error: "Invalid AI response format",
+        details: "The AI service returned an unexpected response format",
+      });
+    }
 
     // Clean and parse the AI response
     const cleanedResponse = cleanJsonResponse(
       aiResponse.candidates[0].content.parts[0].text
     );
-    const recommendedSongs: RecommendedSong[] = JSON.parse(cleanedResponse);
+
+    let recommendedSongs: RecommendedSong[];
+    try {
+      recommendedSongs = JSON.parse(cleanedResponse);
+    } catch (parseError) {
+      console.error("Error parsing AI response:", parseError);
+      return res.status(500).json({
+        error: "Failed to parse AI response",
+        details: "The AI service returned invalid JSON",
+        rawResponse: cleanedResponse, // Include for debugging
+      });
+    }
+
+    // Validate the parsed songs
+    if (!Array.isArray(recommendedSongs)) {
+      return res.status(500).json({
+        error: "Invalid song recommendations format",
+        details: "Expected an array of songs",
+      });
+    }
 
     // Add unique IDs to each song
     const songsWithIds = recommendedSongs.map((song) => ({

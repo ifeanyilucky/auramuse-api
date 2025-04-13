@@ -39,8 +39,8 @@ Return the response in the following JSON format:
     "whyThisSong": "Explain why this song matches the user's current emotional state",
     "similarArtists": ["Artist 1", "Artist 2", "Artist 3"],
     "perfectFor": "Describe when/where this song would be perfect to listen to",
-    "spotifyUrl": "Optional Spotify URL if available",
-    "youtubeUrl": "Optional YouTube URL if available"
+    "spotifyUrl": "Optional Spotify URL if available, leave blank if not available",
+    "youtubeUrl": "Optional YouTube URL if available, leave blank if not available"
   },
   // ... more songs
 ]
